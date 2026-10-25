@@ -492,6 +492,14 @@ html.vtt::view-transition-old(root),html.vtt::view-transition-new(root){animatio
 .scm{display:flex;align-items:center;gap:7px;margin-top:8px;font-size:13.5px;color:var(--mu)}
 .spn{display:inline-block;flex:none;width:15px;height:15px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:rot .7s linear infinite}
 @keyframes rot{to{transform:rotate(360deg)}}
+/* ---------- Ô copy prompt AI ---------- */
+.aip{display:flex;flex-wrap:wrap;align-items:center;gap:12px 14px;margin-top:12px;padding:12px 12px 12px 14px;border-radius:16px;background:var(--in)}
+.aii{position:relative;flex:none;display:grid;place-items:center;width:40px;height:40px;border-radius:12px;color:#fff;background:conic-gradient(from var(--a),var(--ai));animation:spin 6s linear infinite;box-shadow:0 6px 16px -6px rgba(140,90,255,.6)}
+.aii svg{position:relative}
+.ait{flex:1 1 200px;min-width:0;font-size:13.5px;line-height:1.45;color:var(--mu)}
+.ait b{display:block;font-size:14.5px;color:var(--tx)}
+.aip .b{flex:none}
+@media(max-width:480px){.aip .b{width:100%}}
 @media(prefers-reduced-motion:reduce){*,::before,::after{animation:none!important;transition:none!important}}
 </style></head><body>
 <div class="au" aria-hidden="true"><i></i><i></i><i></i></div><div class="grain"></div><div id="app"></div><div id="t" role="status" aria-live="polite"></div><div id="sk" role="status" aria-live="polite"></div>
@@ -721,6 +729,57 @@ const Hm=()=>`<section class="hx"><h1 class="hl">Thi online,<br>klick copy and p
 <div class="g grp">${row('mine','doc','b1','Đề đã tạo',ld().length)}${row('done','tray','b2','Đề đã lưu',ld(KD).length)}</div>`;
 
 /* ---------- Giao diện: tạo đề ---------- */
+const AIP=`Bạn là trợ lý chuyển đề thi sang định dạng text cho website thi online của tôi. Tôi gửi kèm một đề thi (file Word, PDF, ảnh chụp hoặc văn bản) đã có đáp án. Hãy đọc toàn bộ đề, ghép đúng đáp án vào từng câu, rồi viết lại theo ĐÚNG cú pháp dưới đây để tôi dán thẳng vào web. Web đọc đề bằng máy nên chỉ cần sai một ký tự là báo lỗi; hãy tuân thủ tuyệt đối.
+
+=== 1. CÚ PHÁP ===
+Mỗi câu bắt đầu ở một dòng mới bằng "Question <số> [<loại>]:". Đánh số liên tục 1, 2, 3… cho toàn bộ đề, kể cả khi đề gốc chia nhiều phần. LUÔN ghi thẻ loại cho mọi câu:
+- [MC] = trắc nghiệm 4 lựa chọn, có đúng 1 đáp án đúng.
+- [TF] = đúng/sai, gồm 4 nhận định.
+- [SA] = trả lời ngắn, đáp án là một số.
+
+Mẫu chuẩn:
+Question 1 [MC]: Thủ đô của Việt Nam là thành phố nào?
+A. Thành phố Hồ Chí Minh
+*B. Hà Nội
+C. Đà Nẵng
+D. Huế
+Question 2 [TF]: Đọc thông tin sau:<br />Ở áp suất 1 atm, nước sôi ở 100 °C.
+*A. Ở áp suất 1 atm, nước sôi ở 100 °C.
+B. Nhiệt độ sôi của nước không phụ thuộc áp suất.
+*C. Khi sôi, nước chuyển từ thể lỏng sang thể khí.
+D. Nước đá tan ở −10 °C.
+Question 3 [SA]: Tìm nghiệm của phương trình 2x + 7 = 2.
+Đáp án: -2,5
+
+=== 2. QUY TẮC ===
+1. Mỗi lựa chọn hoặc nhận định nằm trên một dòng riêng, bắt đầu đúng bằng "A. ", "B. ", "C. ", "D. " (chữ in hoa, dấu chấm, một dấu cách), theo thứ tự A → D. Đổi các kiểu khác như A) a. a) (A) về dạng này. Với câu đúng/sai, đổi a) b) c) d) thành A. B. C. D.
+2. Dấu * chỉ đặt sát ngay trước chữ cái của lựa chọn đúng (ví dụ *B.), không dùng dấu * ở bất kỳ chỗ nào khác.
+3. [MC]: đúng 1 dấu *. [TF]: đặt dấu * trước MỌI nhận định đúng, không đặt trước nhận định sai (từ 0 đến 4 dấu * đều hợp lệ).
+4. [SA]: dòng cuối của câu là "Đáp án: " rồi đến số. Chỉ ghi số: được phép âm; phần thập phân dùng dấu phẩy hoặc dấu chấm (-2,5 hoặc 0.25). Không ghi đơn vị, không ghi %, không dùng dấu chấm hay phẩy để ngăn cách hàng nghìn (viết 12000, không viết 12.000), không ghi phân số hay dạng 1,5.10^3 mà phải đổi ra số thập phân đúng như đáp án. Nếu đáp án chấp nhận nhiều giá trị, ngăn bằng dấu chấm phẩy: "Đáp án: 0,33; 0,34".
+5. Không xuống dòng thật bên trong một câu. Muốn xuống dòng trong câu hỏi hoặc lựa chọn (đoạn văn, bảng, nhiều ý), dùng <br /> ngay trên cùng dòng.
+6. Bên trong nội dung câu hỏi và lựa chọn, tránh để một chữ cái A, B, C hoặc D đứng riêng rồi đến dấu chấm và dấu cách (ví dụ "điểm A. Tính…"), vì web sẽ hiểu nhầm là lựa chọn mới. Gặp trường hợp này thì đổi dấu chấm thành dấu phẩy hoặc viết lại cho tự nhiên.
+7. Xóa mọi thứ không phải câu hỏi: tên trường, "PHẦN I/II/III", lời hướng dẫn, thang điểm, số trang, "HẾT", bảng đáp án cuối đề (sau khi đã dùng để đánh dấu). Chữ nằm giữa hai câu sẽ bị dính vào câu phía trên.
+8. Giữ nguyên nội dung câu hỏi và lựa chọn như đề gốc, đúng chính tả và dấu tiếng Việt, giữ nguyên ngôn ngữ gốc (đề tiếng Anh vẫn để tiếng Anh). Không tự sửa đề, không thêm lời giải. Bỏ số câu gốc ("Câu 1.", "Question 1.") vì đã có tiêu đề mới.
+9. Công thức viết dạng chữ thuần, dùng ký hiệu Unicode khi có thể: x², x³, √, π, ≤, ≥, ≠, ±, ×, ÷, →, ∞, °, α, β, Δ. Số mũ phức tạp viết x^(n+1); phân số viết a/b hoặc (a+b)/(c−d); hóa học viết H₂O, CO₂. Không dùng LaTeX.
+10. Web không hiển thị hình ảnh. Nếu câu có hình, đồ thị hoặc bảng biến thiên mà vẫn làm được khi mô tả bằng chữ, hãy mô tả ngắn trong ngoặc vuông, ví dụ [Hình: tam giác ABC vuông tại A, AB = 3, AC = 4]. Nếu không mô tả được, vẫn viết câu đó và ghi rõ trong phần Ghi chú.
+11. Đoạn văn dùng chung cho nhiều câu (đọc hiểu, điền từ vào đoạn văn): chép lại nguyên đoạn văn ở đầu MỖI câu liên quan (dùng <br /> để xuống dòng), để câu nào cũng làm được độc lập.
+12. Tuyệt đối không đoán đáp án. Lấy đáp án từ bảng đáp án, lời giải đi kèm hoặc đáp án được tô màu, in đậm, gạch chân, khoanh tròn trong đề. Câu nào không tìm thấy đáp án: với [MC] thì không đặt dấu * nào; với [SA] thì ghi "Đáp án: ?"; với [TF] thì không đặt dấu * nào. Sau đó liệt kê các câu này trong phần Ghi chú.
+13. Câu trắc nghiệm không đủ đúng 4 lựa chọn, câu đúng/sai không đủ đúng 4 nhận định, hoặc câu tự luận: web chưa hỗ trợ, hãy bỏ qua và nêu trong Ghi chú.
+
+=== 3. TỰ KIỂM TRA TRƯỚC KHI TRẢ LỜI ===
+- Số câu đầu ra khớp số câu trong đề gốc (trừ các câu đã ghi chú là bỏ qua).
+- Mọi câu đều có thẻ [MC], [TF] hoặc [SA].
+- Mỗi câu [MC] có đủ 4 lựa chọn A–D và đúng 1 dấu *.
+- Mỗi câu [TF] có đủ 4 nhận định A–D, dấu * đúng với đáp án.
+- Mỗi câu [SA] kết thúc bằng dòng "Đáp án:" chỉ chứa số hợp lệ.
+- Không còn tiêu đề phần, hướng dẫn hay bảng đáp án lẫn trong khối code.
+
+=== 4. CÁCH TRẢ LỜI ===
+Trả lời đúng theo thứ tự sau, không thêm lời dẫn:
+1. Một dòng "Tên đề: …" (gợi ý tên ngắn gọn dựa theo đề gốc).
+2. MỘT khối code duy nhất (\`\`\`text … \`\`\`) chứa toàn bộ đề đã chuyển, không có dòng trống, không có chú thích nào bên trong.
+3. Phần "Ghi chú" (chỉ khi cần): liệt kê ngắn gọn các câu thiếu đáp án, câu có hình, câu bị bỏ qua, chỗ đọc không chắc chắn (ảnh mờ, chữ bị che…).
+Nếu đề quá dài, hãy chia thành nhiều lượt: mỗi lượt là một khối code, đánh số câu nối tiếp lượt trước, cuối lượt ghi "Còn tiếp". Tôi sẽ nhắn "tiếp tục" để nhận phần sau rồi dán nối vào cuối.`;
 const SYN=()=>`<p>Mỗi câu bắt đầu bằng <code>Question 1:</code> hoặc <code>Câu 1:</code>. Dùng <code>&lt;br /&gt;</code> để xuống dòng trong một câu.</p>
 <h4><i class="d m"></i>Trắc nghiệm</h4><p>Một dấu <code>*</code> trước đáp án đúng.</p><pre class="cx hlc">${hlx('Question 1: 2 + 3 = ?\nA. 4\n*B. 5\nC. 6\nD. 7')}</pre>
 <h4><i class="d t"></i>Đúng/Sai</h4><p>Dấu <code>*</code> trước mỗi nhận định đúng. Nếu cả 4 đều sai, thêm <code>[TF]</code>.</p><pre class="cx hlc">${hlx('Question 2 [TF]: Về số nguyên tố:\n*A. 2 là số nguyên tố.\nB. 1 là số nguyên tố.\n*C. 7 là số nguyên tố.\nD. 9 là số nguyên tố.')}</pre>
@@ -729,7 +788,7 @@ const Cr=()=>`<div class="pt"><h2>${ED?'Sửa đề':'Tạo đề'}</h2><p class
 <div class="g"><label class="fl3" for="ti">Tên đề</label><input id="ti" maxlength="120" value="${esc(DRAFT.t)}" placeholder="VD: Ôn tập Unit 3"><label class="fl3" for="de">Mô tả <span>(không bắt buộc)</span></label><input id="de" maxlength="300" value="${esc(DRAFT.d)}">
 <div class="edh"><label class="fl3" for="sr">Nội dung đề</label><button class="b sm" data-a="sample">${I('spark',15)}<span>Dùng đề mẫu</span></button></div>
 <div class="ed${IOS?' ios':''}"><pre class="hlc" id="hl" aria-hidden="true">${hlx(DRAFT.s)}</pre><textarea id="sr" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" placeholder="Question 1: ...">${esc(DRAFT.s)}</textarea></div>
-<details class="dz"${DRAFT.s.trim()?'':' open'}><summary>${I('info',16)}<span>Cú pháp các dạng câu</span></summary><div class="dzb">${SYN()}</div></details></div>
+<details class="dz"${DRAFT.s.trim()?'':' open'}><summary>${I('info',16)}<span>Cú pháp các dạng câu</span></summary><div class="dzb">${SYN()}</div></details><div class="aip"><i class="aii">${I('spark',20,2)}</i><div class="ait"><b>Chuyển đề có sẵn bằng AI</b>Có đề Word, PDF hay ảnh kèm đáp án? Copy prompt này, gửi kèm file cho AI (ChatGPT, Claude, Gemini…) rồi dán kết quả vào ô trên.</div><button class="b p sm2" data-a="aip">${I('copy',16)}<span>Copy prompt</span></button></div></div>
 <div id="pv"></div><div id="cd"></div>`;
 function pv(){const e=$('#pv');if(!e)return;const{qs,errs}=parse(DRAFT.s);
  e.innerHTML=!DRAFT.s.trim()?'':`<div class="g"><div class="pvh"><h2>Xem trước</h2><span class="cnt">${qs.length} câu</span></div>${qs.length?tyc(qs):''}${errs.length?`<div class="er" role="alert">${errs.map(x=>`<div>${I('warn',16)}<span>${esc(x)}</span></div>`).join('')}</div>`:`<div class="okm">${I('check',16,2.6)}Không có lỗi</div>`}
@@ -904,7 +963,7 @@ function go(v){V=v;if(v==='result'){cmAll();if(!G.fin){G.t1=Date.now();if(CUR&&G
 async function openCode(c,rec){try{EX=await decode(c);ERR='';FID='';EC=c.replace(/\s+/g,'');CUR=rec?track(c):'';SFX.open();go('setup')}catch(e){ERR=e.message;SFX.er();R()}}
 
 /* ---------- Sự kiện ---------- */
-const SND={sco:0,scg:0,scc:0,scl:0,home:'go',create:'go',join:'go',mine:'go',done:'go',edit:'go',fpr:'go',try:'go',review:'go',tab:'seg',pre:'seg',sample:'pst',rd:0,fo:0,sm:0,sp:0,fx:'tap',prev:0,next:0,jump:0,flag:0,pick:0,tf:0,sck:0,cp:0,cpid:0,lk:0,lkid:0,shr:0,make:0,snd:0,thm:0,del:0,fdel:0,start:0,load:0,paste:0,redo:0,again:0,redof:0,fin:0,open:0,redo2:0};
+const SND={aip:0,sco:0,scg:0,scc:0,scl:0,home:'go',create:'go',join:'go',mine:'go',done:'go',edit:'go',fpr:'go',try:'go',review:'go',tab:'seg',pre:'seg',sample:'pst',rd:0,fo:0,sm:0,sp:0,fx:'tap',prev:0,next:0,jump:0,flag:0,pick:0,tf:0,sck:0,cp:0,cpid:0,lk:0,lkid:0,shr:0,make:0,snd:0,thm:0,del:0,fdel:0,start:0,load:0,paste:0,redo:0,again:0,redof:0,fin:0,open:0,redo2:0};
 document.addEventListener('click',e=>{
  if(e.target.closest&&e.target.closest('.dz summary'))LSUM=performance.now();
  const el=e.target.closest('[data-a]');if(!el||el.disabled||VB)return;
@@ -949,6 +1008,7 @@ document.addEventListener('click',e=>{
  case'scg':mkShort(id,el);break;
  case'scc':{const x=scGet(id);if(x&&x.sc)cpy(x.sc,'Đã sao chép',el)}break;
  case'scl':{const x=scGet(id);if(x&&x.sc)cpy(IG+x.sc,'Đã sao chép link',el)}break;
+ case'aip':cpy(AIP,'Đã sao chép',el);break;
  case'fin':go('result');break;
  case'review':G.i=Math.max(0,G.it.findIndex(x=>!done(x)||!good(x)));go('play');break;
  case'redo':start(G.it.filter(x=>!(done(x)&&good(x))).map(x=>EX.q.indexOf(x.q)));break;
